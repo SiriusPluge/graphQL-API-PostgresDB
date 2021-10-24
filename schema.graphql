@@ -1,0 +1,43 @@
+type Product {
+    id: Int!
+    name: String!
+}
+
+type User {
+    id: Int!
+    phone: String!
+}
+
+type Viewer {
+    user: User
+}
+
+type Query {
+    products: [Product!]
+    viewer: Viewer!
+}
+
+type ErrorPayload {
+    message: String!
+}
+
+input SignInByCodeInput {
+    phone: String!
+    code: String!
+}
+
+input RequestSignInCodeInput {
+    phone: String!
+}
+
+type SignInPayload {
+    token: String!
+    viewer: Viewer!
+}
+
+union SignInOrErrorPayload = SignInPayload | ErrorPayload
+
+type Mutation {
+    requestSignInCode(input: RequestSignInCodeInput!): ErrorPayload
+    signInByCode(input: SignInByCodeInput!): SignInOrErrorPayload!
+}
