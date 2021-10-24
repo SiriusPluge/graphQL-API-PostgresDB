@@ -13,6 +13,7 @@ require (
 require (
 	github.com/agnivade/levenshtein v1.1.0 // indirect
 	github.com/go-pg/zerochecker v0.2.0 // indirect
+	github.com/golang-jwt/jwt v3.2.2+incompatible // indirect
 	github.com/gorilla/websocket v1.4.2 // indirect
 	github.com/hashicorp/golang-lru v0.5.0 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
