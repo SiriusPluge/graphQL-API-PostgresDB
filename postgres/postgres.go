@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"github.com/go-pg/pg/v10"
 	"github.com/uptrace/bun"
+	"github.com/uptrace/bun/dialect/pgdialect"
 	"github.com/uptrace/bun/driver/pgdriver"
 	"golang.org/x/net/context"
-	"github.com/uptrace/bun/dialect/pgdialect"
 )
 
 type DBLogger struct {}
@@ -26,9 +26,9 @@ func ConnectDB() *bun.DB {
 	// dsn := "unix://user:pass@dbname/var/run/postgresql/.s.PGSQL.5432"
 	sqldb := sql.OpenDB(pgdriver.NewConnector(pgdriver.WithDSN(dsn)))
 
-	db := bun.NewDB(sqldb, pgdialect.New())
+	DB := bun.NewDB(sqldb, pgdialect.New())
 
-	return db
+	return DB
 }
 
 //func ConnectPostgresDB() {

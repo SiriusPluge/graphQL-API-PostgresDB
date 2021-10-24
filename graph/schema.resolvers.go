@@ -5,11 +5,17 @@ package graph
 
 import (
 	"context"
+
 	"fmt"
+
+	"github.com/uptrace/bun"
 	"graphQL-API-PostgresDB/graph/generated"
 	"graphQL-API-PostgresDB/graph/model"
-	"graphQL-API-PostgresDB/postgres"
 )
+
+type db struct {
+	db *bun.DB
+}
 
 func (r *mutationResolver) RequestSignInCode(ctx context.Context, input model.RequestSignInCodeInput) (*model.ErrorPayload, error) {
 	panic(fmt.Errorf("not implemented"))
@@ -20,14 +26,11 @@ func (r *mutationResolver) SignInByCode(ctx context.Context, input model.SignInB
 }
 
 func (r *queryResolver) Products(ctx context.Context) ([]*model.Product, error) {
-
-	db := postgres.ConnectDB()
-
-	products := make([]*model.Product, 0)
-	if err := db.NewSelect().Model(&products).OrderExpr("id ASC").Scan(ctx); err != nil {
-		panic(err)
+	result, err := r.Domain.DB.GetProducts(ctx)
+	if err != nil {
+		panic(fmt.Errorf("Error in resolvers Products"))
 	}
-	return products, nil
+	return result, nil
 }
 
 func (r *queryResolver) Viewer(ctx context.Context) (*model.Viewer, error) {
