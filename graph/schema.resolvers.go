@@ -5,20 +5,18 @@ package graph
 
 import (
 	"context"
-
 	"fmt"
-
-	"github.com/uptrace/bun"
 	"graphQL-API-PostgresDB/graph/generated"
 	"graphQL-API-PostgresDB/graph/model"
 )
 
-type db struct {
-	db *bun.DB
-}
-
 func (r *mutationResolver) RequestSignInCode(ctx context.Context, input model.RequestSignInCodeInput) (*model.ErrorPayload, error) {
-	panic(fmt.Errorf("not implemented"))
+	_, err := r.Domain.DB.GetInCode(input)
+	if err != nil {
+		fmt.Errorf("Error in RequestSignInCode: %s", err)
+	}
+	var msg *model.ErrorPayload
+	return msg, nil
 }
 
 func (r *mutationResolver) SignInByCode(ctx context.Context, input model.SignInByCodeInput) (model.SignInOrErrorPayload, error) {

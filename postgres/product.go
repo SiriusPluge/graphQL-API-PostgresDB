@@ -2,14 +2,9 @@ package postgres
 
 import (
 	"fmt"
-	"github.com/uptrace/bun"
 	"golang.org/x/net/context"
 	"graphQL-API-PostgresDB/graph/model"
 )
-
-type DB struct {
-	DB *bun.DB
-}
 
 func (u *DB) GetProducts(ctx context.Context) ([]*model.Product, error) {
 

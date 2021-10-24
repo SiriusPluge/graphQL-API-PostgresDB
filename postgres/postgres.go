@@ -12,6 +12,10 @@ import (
 
 type DBLogger struct {}
 
+type DB struct {
+	DB *bun.DB
+}
+
 func (d DBLogger) BeforeQuery(ctx context.Context, q *pg.QueryEvent) (context.Context, error) {
 	return ctx, nil
 }
