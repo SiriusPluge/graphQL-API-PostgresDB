@@ -1,9 +1,13 @@
 package postgres
 
 import (
+	"database/sql"
 	"fmt"
 	"github.com/go-pg/pg/v10"
+	"github.com/uptrace/bun"
+	"github.com/uptrace/bun/driver/pgdriver"
 	"golang.org/x/net/context"
+	"github.com/uptrace/bun/dialect/pgdialect"
 )
 
 type DBLogger struct {}
@@ -17,8 +21,14 @@ func (d DBLogger) AfterQuery(ctx context.Context, q *pg.QueryEvent) error {
 	return nil
 }
 
-func New(opts *pg.Options) *pg.DB {
-	return pg.Connect(opts)
+func ConnectDB() *bun.DB {
+	dsn := "postgres://postgres:pass@localhost:5432/postgres?sslmode=disable"
+	// dsn := "unix://user:pass@dbname/var/run/postgresql/.s.PGSQL.5432"
+	sqldb := sql.OpenDB(pgdriver.NewConnector(pgdriver.WithDSN(dsn)))
+
+	db := bun.NewDB(sqldb, pgdialect.New())
+
+	return db
 }
 
 //func ConnectPostgresDB() {

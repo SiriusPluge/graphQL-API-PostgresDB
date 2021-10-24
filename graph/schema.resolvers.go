@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"graphQL-API-PostgresDB/graph/generated"
 	"graphQL-API-PostgresDB/graph/model"
+	"graphQL-API-PostgresDB/postgres"
 )
 
 func (r *mutationResolver) RequestSignInCode(ctx context.Context, input model.RequestSignInCodeInput) (*model.ErrorPayload, error) {
@@ -19,7 +20,14 @@ func (r *mutationResolver) SignInByCode(ctx context.Context, input model.SignInB
 }
 
 func (r *queryResolver) Products(ctx context.Context) ([]*model.Product, error) {
-	panic(fmt.Errorf("not implemented"))
+
+	db := postgres.ConnectDB()
+
+	products := make([]*model.Product, 0)
+	if err := db.NewSelect().Model(&products).OrderExpr("id ASC").Scan(ctx); err != nil {
+		panic(err)
+	}
+	return products, nil
 }
 
 func (r *queryResolver) Viewer(ctx context.Context) (*model.Viewer, error) {
