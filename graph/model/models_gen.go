@@ -12,11 +12,6 @@ type ErrorPayload struct {
 
 func (ErrorPayload) IsSignInOrErrorPayload() {}
 
-type Product struct {
-	ID   int    `json:"id"`
-	Name string `json:"name"`
-}
-
 type RequestSignInCodeInput struct {
 	Phone string `json:"phone"`
 }
@@ -32,12 +27,3 @@ type SignInPayload struct {
 }
 
 func (SignInPayload) IsSignInOrErrorPayload() {}
-
-type User struct {
-	ID    int    `json:"id"`
-	Phone string `json:"phone"`
-}
-
-type Viewer struct {
-	User *User `json:"user"`
-}

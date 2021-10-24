@@ -1,8 +1,10 @@
 package main
 
 import (
+	"github.com/go-pg/pg/v10"
 	"graphQL-API-PostgresDB/graph"
 	"graphQL-API-PostgresDB/graph/generated"
+	"graphQL-API-PostgresDB/postgres"
 	"log"
 	"net/http"
 	"os"
@@ -14,6 +16,15 @@ import (
 const defaultPort = "8080"
 
 func main() {
+	DB := postgres.New(&pg.Options{
+		User: "postgres",
+		Password: "postgres",
+		Database: "postgresDB",
+	})
+	defer DB.Close()
+
+	DB.AddQueryHook(postgres.DBLogger{})
+
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = defaultPort

@@ -6,6 +6,7 @@ require (
 	github.com/99designs/gqlgen v0.14.0
 	github.com/go-pg/pg/v10 v10.10.6
 	github.com/vektah/gqlparser/v2 v2.2.0
+	golang.org/x/net v0.0.0-20210226172049-e18ecbb05110
 )
 
 require (
