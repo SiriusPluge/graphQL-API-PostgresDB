@@ -1,7 +1,6 @@
 package postgres
 
 import (
-	"fmt"
 	"golang.org/x/net/context"
 	"graphQL-API-PostgresDB/graph/model"
 	"log"
@@ -23,3 +22,5 @@ func (u *DB) Autorization(ctx context.Context, input model.SignInByCodeInput) (m
 	}
 
 }
+
+

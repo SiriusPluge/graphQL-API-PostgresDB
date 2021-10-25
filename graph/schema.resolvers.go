@@ -21,8 +21,6 @@ func (r *mutationResolver) RequestSignInCode(ctx context.Context, input model.Re
 
 func (r *mutationResolver) SignInByCode(ctx context.Context, input model.SignInByCodeInput) (model.SignInOrErrorPayload, error) {
 
-
-	if input.Phone ==
 }
 
 func (r *queryResolver) Products(ctx context.Context) ([]*model.Product, error) {
