@@ -3,13 +3,12 @@ package postgres
 import (
 	"fmt"
 	"github.com/golang-jwt/jwt"
-	"graphQL-API-PostgresDB/graph/model"
+	"github.com/uptrace/bun"
 	"time"
 )
 
 type MyCustomClaims struct {
 	Phone string
-	Code string
 	jwt.MapClaims
 }
 
@@ -17,11 +16,11 @@ type MyCustomClaims struct {
 var PublicKey = []byte("secret")
 
 // GenerateToken generates JWT token en returns it
-func (u *DB) GenerateToken(input model.SignInByCodeInput) (string, error) {
+func (u *DB) GenerateToken(phone string) (string, *bun.SelectQuery) {
 
 	// Create the Claims
 	claims := MyCustomClaims{
-		input.Phone, input.Code,
+		phone,
 		jwt.MapClaims{
 			"exp": time.Now().Add(time.Hour * time.Duration(24)).Unix(),
 			"iat": time.Now().Unix(),
@@ -30,11 +29,7 @@ func (u *DB) GenerateToken(input model.SignInByCodeInput) (string, error) {
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
-	tokenString, err := token.SignedString(PublicKey)
-
-	if err != nil {
-		return "", err
-	}
+	tokenString, _ := token.SignedString(PublicKey)
 
 	return tokenString, nil
 }

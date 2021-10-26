@@ -20,7 +20,12 @@ func (r *mutationResolver) RequestSignInCode(ctx context.Context, input model.Re
 }
 
 func (r *mutationResolver) SignInByCode(ctx context.Context, input model.SignInByCodeInput) (model.SignInOrErrorPayload, error) {
-
+	getUserByToken := r.Domain.DB.SignIn(ctx, input)
+	if getUserByToken != nil {
+		return getUserByToken, nil
+	} else {
+		return &model.ErrorPayload{Message: "Authorization error"}, nil
+	}
 }
 
 func (r *queryResolver) Products(ctx context.Context) ([]*model.Product, error) {
@@ -32,8 +37,22 @@ func (r *queryResolver) Products(ctx context.Context) ([]*model.Product, error) 
 }
 
 func (r *queryResolver) Viewer(ctx context.Context) (*model.Viewer, error) {
-	panic(fmt.Errorf("not implemented"))
+
+	user1 := new(model.User)
+	if err := r.Domain.DB.DB.NewSelect().Model(user1).Where("id = ?", 1).Scan(ctx); err != nil {
+		panic(err)
+	}
+
+	token :=
+	if token != nil {
+		user := getUserByToken
+		return &model.Viewer{User: user}
+	}
+
+	return &model.Viewer{User: nil}
 }
+}
+
 
 // Mutation returns generated.MutationResolver implementation.
 func (r *Resolver) Mutation() generated.MutationResolver { return &mutationResolver{r} }
