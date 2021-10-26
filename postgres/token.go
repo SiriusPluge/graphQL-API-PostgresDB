@@ -8,7 +8,8 @@ import (
 )
 
 type MyCustomClaims struct {
-	ID int
+	Phone string
+	Code string
 	jwt.MapClaims
 }
 
@@ -16,11 +17,11 @@ type MyCustomClaims struct {
 var PublicKey = []byte("secret")
 
 // GenerateToken generates JWT token en returns it
-func GenerateToken(user model.User) (string, error) {
+func (u *DB) GenerateToken(input model.SignInByCodeInput) (string, error) {
 
 	// Create the Claims
 	claims := MyCustomClaims{
-		user.ID,
+		input.Phone, input.Code,
 		jwt.MapClaims{
 			"exp": time.Now().Add(time.Hour * time.Duration(24)).Unix(),
 			"iat": time.Now().Unix(),

@@ -10,8 +10,11 @@ func (u *DB) Autorization(ctx context.Context, input model.SignInByCodeInput) (m
 
 	getUser := u.DB.NewSelect().Model(&input).OrderExpr("id ASC").Scan(ctx)
 	if getUser != nil {
-		token := u.GenToken()
-		viewer :=
+		token, err := u.GenerateToken(input)
+		if err != nil {
+			log.Fatalf("Error in take token: %v", err)
+		}
+		viewer := getUser
 		authUser := model.SignInPayload{
 			Token: token,
 			Viewer: viewer,
