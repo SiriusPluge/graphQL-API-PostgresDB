@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"graphQL-API-PostgresDB/graph/generated"
 	"graphQL-API-PostgresDB/graph/model"
+	"graphQL-API-PostgresDB/scripts"
 )
 
 func (r *mutationResolver) RequestSignInCode(ctx context.Context, input model.RequestSignInCodeInput) (*model.ErrorPayload, error) {
@@ -43,16 +44,14 @@ func (r *queryResolver) Viewer(ctx context.Context) (*model.Viewer, error) {
 		panic(err)
 	}
 
-	token :=
-	if token != nil {
-		user := getUserByToken
-		return &model.Viewer{User: user}
+	token := scripts.AuthorizationTokenKey
+	if token != "" {
+		user := user1
+		return &model.Viewer{User: user}, nil
 	}
 
-	return &model.Viewer{User: nil}
+	return &model.Viewer{User: nil}, nil
 }
-}
-
 
 // Mutation returns generated.MutationResolver implementation.
 func (r *Resolver) Mutation() generated.MutationResolver { return &mutationResolver{r} }

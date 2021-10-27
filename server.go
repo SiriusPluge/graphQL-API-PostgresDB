@@ -4,6 +4,7 @@ import (
 	"graphQL-API-PostgresDB/graph"
 	"graphQL-API-PostgresDB/graph/generated"
 	"graphQL-API-PostgresDB/postgres"
+	"graphQL-API-PostgresDB/scripts"
 	"log"
 	"net/http"
 	"os"
@@ -27,7 +28,7 @@ func main() {
 	srv := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: &graph.Resolver{}}))
 
 	http.Handle("/", playground.Handler("GraphQL playground", "/query"))
-	http.Handle("/query", srv)
+	http.Handle("/query", scripts.AuthorizationTokenContextMiddleware(srv))
 
 	log.Printf("connect to http://localhost:%s/ for GraphQL playground", port)
 	log.Fatal(http.ListenAndServe(":"+port, nil))
