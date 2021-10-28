@@ -11,9 +11,14 @@ import (
 
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
+	"github.com/uptrace/bun"
 )
 
 const defaultPort = "8080"
+
+type DB struct {
+	DB *bun.DB
+}
 
 func main() {
 

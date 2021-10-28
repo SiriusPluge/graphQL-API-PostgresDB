@@ -26,13 +26,22 @@ func (d DBLogger) AfterQuery(ctx context.Context, q *pg.QueryEvent) error {
 }
 
 func ConnectDB() *bun.DB {
-	dsn := "postgres://postgres:pass@localhost:5432/postgres?sslmode=disable"
-	// dsn := "unix://user:pass@dbname/var/run/postgresql/.s.PGSQL.5432"
-	sqldb := sql.OpenDB(pgdriver.NewConnector(pgdriver.WithDSN(dsn)))
+	//dsn := "postgres://postgres:qwerty@localhost:5436/postgres?sslmode=disable"
+	//// dsn := "unix://user:pass@dbname/var/run/postgresql/.s.PGSQL.5432"
+	//sqlDb := sql.OpenDB(pgdriver.NewConnector(pgdriver.WithDSN(dsn)))
+	//
+	//DB := bun.NewDB(sqlDb, pgdialect.New())
+	//
+	//return DB
 
-	DB := bun.NewDB(sqldb, pgdialect.New())
+	// Open a PostgreSQL database.
+	dsn := "postgres://postgres:@localhost:5436/test?sslmode=disable"
+	pgdb := sql.OpenDB(pgdriver.NewConnector(pgdriver.WithDSN(dsn)))
 
-	return DB
+	// Create a Bun db on top of it.
+	db := bun.NewDB(pgdb, pgdialect.New())
+
+	return db
 }
 
 //func ConnectPostgresDB() {
