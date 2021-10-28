@@ -35,13 +35,13 @@ func ConnectDB() *bun.DB {
 	//return DB
 
 	// Open a PostgreSQL database.
-	dsn := "postgres://postgres:@localhost:5436/test?sslmode=disable"
+	dsn := "postgres://postgres:postgres@localhost:7323/postgres?sslmode=disable"
 	pgdb := sql.OpenDB(pgdriver.NewConnector(pgdriver.WithDSN(dsn)))
 
 	// Create a Bun db on top of it.
-	db := bun.NewDB(pgdb, pgdialect.New())
+	DB := bun.NewDB(pgdb, pgdialect.New())
 
-	return db
+	return DB
 }
 
 //func ConnectPostgresDB() {

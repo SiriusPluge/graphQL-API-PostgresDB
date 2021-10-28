@@ -38,7 +38,6 @@ func (r *queryResolver) Products(ctx context.Context) ([]*model.Product, error) 
 }
 
 func (r *queryResolver) Viewer(ctx context.Context) (*model.Viewer, error) {
-
 	user1 := new(model.User)
 	if err := r.Domain.DB.DB.NewSelect().Model(user1).Where("id = ?", 1).Scan(ctx); err != nil {
 		panic(err)

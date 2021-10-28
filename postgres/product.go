@@ -8,8 +8,9 @@ import (
 
 func (u *DB) GetProducts(ctx context.Context) ([]*model.Product, error) {
 
-	var products []*model.Product
+	products := make([]*model.Product, 0)
 	err := u.DB.NewSelect().Model(&products).OrderExpr("id ASC").Scan(ctx)
+	//err := u.DB.NewSelect().Model(&products).Scan(ctx)
 	if err != nil {
 		fmt.Errorf("Error for GetProducts: %v", err)
 	}

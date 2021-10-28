@@ -1,6 +1,7 @@
 package main
 
 import (
+	"graphQL-API-PostgresDB/domain"
 	"graphQL-API-PostgresDB/graph"
 	"graphQL-API-PostgresDB/graph/generated"
 	"graphQL-API-PostgresDB/postgres"
@@ -11,14 +12,9 @@ import (
 
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
-	"github.com/uptrace/bun"
 )
 
 const defaultPort = "8080"
-
-type DB struct {
-	DB *bun.DB
-}
 
 func main() {
 
@@ -30,7 +26,10 @@ func main() {
 		port = defaultPort
 	}
 
-	srv := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: &graph.Resolver{}}))
+	Repo := postgres.DB{DB: DB}
+	d := domain.NewDomain(Repo)
+
+	srv := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: &graph.Resolver{Domain: d}}))
 
 	http.Handle("/", playground.Handler("GraphQL playground", "/query"))
 	http.Handle("/query", scripts.AuthorizationTokenContextMiddleware(srv))

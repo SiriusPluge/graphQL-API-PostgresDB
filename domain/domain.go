@@ -5,5 +5,9 @@ import (
 )
 
 type Domain struct {
-	DB *postgres.DB
+	DB postgres.DB
+}
+
+func NewDomain(DB postgres.DB) *Domain {
+	return &Domain{DB: DB}
 }
