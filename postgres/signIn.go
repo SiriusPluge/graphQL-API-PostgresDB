@@ -31,7 +31,7 @@ func (u *DB) SignIn(ctx context.Context, input model.SignInByCodeInput) (model.S
 
 		authUser := model.SignInPayload{
 			Token: token,
-			Viewer: viewer,
+			Viewer: &viewer,
 		}
 		return authUser
 
