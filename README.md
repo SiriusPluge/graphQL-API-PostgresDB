@@ -1,9 +1,9 @@
 # graphQL-API-PostgresDB
 
 
-sudo docker run --name=postgres -e POSTGRES_PASSWORD='pass' -p 7323:5432 -d --rm postgres
+sudo docker run --name=postgres -e POSTGRES_PASSWORD='postgres' -p 7323:5432 -d postgres
 
-migrate -path ./schema -database 'postgres://postgres:qwerty@localhost:5436/postgres?sslmode=disable' up
+migrate -path ./schema -database 'postgres://postgres:postgres@localhost:7323/postgres?sslmode=disable' up
 
 sudo docker exec -it <?> /bin/bash
 

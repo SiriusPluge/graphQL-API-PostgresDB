@@ -9,32 +9,35 @@ import (
 
 func (u *DB) SignIn(ctx context.Context, input model.SignInByCodeInput) (model.SignInOrErrorPayload) {
 
-	user1 := new(model.Viewer)
-	if err := u.DB.NewSelect().Model(user1).Where("id = ?", 1).Scan(ctx); err != nil {
+	user1 := new(model.User)
+	if err := u.DB.NewSelect().Model(user1).Where("phone = ?", input.Phone).Scan(ctx); err != nil {
+		fmt.Println(err)
 		panic(err)
 	}
-	fmt.Println(user1)
 
-	getUserToken := new(model.User)
-	err := u.DB.NewSelect().Model(&getUserToken).OrderExpr("id ASC")
-	fmt.Println(getUserToken)
+	viewer := model.Viewer{
+		user1,
+	}
 
-	codeClient := "0000" // we receive the code from the client
+	codeClient := input.Code // we receive the code from the client
 	codeVerify := "0000" // code issued by the service
-	if codeClient != codeVerify {
+
+	if codeClient == codeVerify && user1 != nil {
+
+		token, err := u.GenerateToken(input.Phone)
+		if err != nil {
+			log.Fatalf("Error in take token: %v", err)
+		}
+
+		authUser := model.SignInPayload{
+			Token: token,
+			Viewer: viewer,
+		}
+		return authUser
+
+	} else {
 		return model.ErrorPayload{Message: "The code is incorrect"}
 	}
-
-	token, err := u.GenerateToken(getUserToken.Phone)
-	if err != nil {
-		log.Fatalf("Error in take token: %v", err)
-	}
-
-	authUser := model.SignInPayload{
-		Token: token,
-		Viewer: user1,
-	}
-	return authUser
 }
 
 
