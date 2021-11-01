@@ -26,18 +26,8 @@ func main() {
 		port = defaultPort
 	}
 
-	//router := chi.NewRouter()
-	//
-	//router.Use(cors.New(cors.Options{
-	//	AllowedOrigins:   []string{"http://localhost:8000"},
-	//	AllowCredentials: true,
-	//	Debug:            true,
-	//}).Handler)
-
 	Repo := postgres.DB{DB: DB}
 	d := domain.NewDomain(Repo)
-
-	//router.Use(scripts.AuthMiddleware(Repo))
 
 	srv := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: &graph.Resolver{Domain: d}}))
 

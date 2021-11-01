@@ -5,6 +5,7 @@ package graph
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"graphQL-API-PostgresDB/graph/generated"
 	"graphQL-API-PostgresDB/graph/model"
@@ -12,12 +13,41 @@ import (
 )
 
 func (r *mutationResolver) RequestSignInCode(ctx context.Context, input model.RequestSignInCodeInput) (*model.ErrorPayload, error) {
-	_, err := r.Domain.DB.GetInCode(input)
+
+	lastIndex, err := r.Domain.DB.LastIndexUsers(ctx)
 	if err != nil {
-		fmt.Errorf("Error in RequestSignInCode: %s", err)
+		fmt.Println("Ошибка")
 	}
-	var msg *model.ErrorPayload
-	return msg, nil
+
+	check := r.Domain.DB.UserPresence(ctx, input.Phone)
+	if check == false {
+		errors.New("a user with such a phone was not found")
+		//if errGetUser := r.Domain.DB.DB.NewSelect().Model(user1).Where("phone = ?", input.Phone).Scan(ctx); err != nil {
+		var u1 model.User
+		u1.Phone = input.Phone
+		u1.ID = lastIndex + 1
+		_, errInsert := r.Domain.DB.DB.NewInsert().Model(&u1).Exec(ctx)
+		if errInsert != nil {
+			errors.New("Error in errInsert")
+		}
+
+		fmt.Println("вариант с вставкой")
+		_, err := r.Domain.DB.GetInCode(u1.Phone)
+		if err != nil {
+			fmt.Errorf("Error in RequestSignInCode: %s", err)
+		}
+
+		var msg *model.ErrorPayload
+		return msg, nil
+	} else {
+		fmt.Println("вараинт без вставки")
+		_, err := r.Domain.DB.GetInCode(input.Phone)
+		if err != nil {
+			fmt.Errorf("Error in RequestSignInCode: %s", err)
+		}
+		var msg *model.ErrorPayload
+		return msg, nil
+	}
 }
 
 func (r *mutationResolver) SignInByCode(ctx context.Context, input model.SignInByCodeInput) (model.SignInOrErrorPayload, error) {
@@ -39,19 +69,29 @@ func (r *queryResolver) Products(ctx context.Context) ([]*model.Product, error) 
 
 func (r *queryResolver) Viewer(ctx context.Context) (*model.Viewer, error) {
 
+	fmt.Println(ctx)
 
-	user1 := new(model.User)
-	if err := r.Domain.DB.DB.NewSelect().Model(user1).Where("id = ?", 1).Scan(ctx); err != nil {
+	headerToken, err := scripts.ParseAuthHeader(ctx)
+	if err != nil {
+		return nil, errors.New("missing jwt-token in headers request")
+	}
+
+	fmt.Println(headerToken)
+
+	phone, err := scripts.Parse(headerToken)
+	if err != nil {
+		return nil, errors.New("invalid token")
+	}
+
+	fmt.Println(phone)
+
+	user := new(model.User)
+	if err := r.Domain.DB.DB.NewSelect().Model(&user).Where("phone = ?", phone).Scan(ctx); err != nil {
 		panic(err)
 	}
 
-	token := scripts.AuthorizationTokenKey
-	if token != "" {
-		user := user1
-		return &model.Viewer{User: user}, nil
-	}
-
-	return &model.Viewer{User: nil}, nil
+	fmt.Println(user)
+	return &model.Viewer{User: user}, nil
 }
 
 // Mutation returns generated.MutationResolver implementation.

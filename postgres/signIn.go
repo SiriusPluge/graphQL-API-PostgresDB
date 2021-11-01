@@ -9,12 +9,16 @@ import (
 
 func (u *DB) SignIn(ctx context.Context, input model.SignInByCodeInput) (model.SignInOrErrorPayload) {
 
+	//gc, err := scripts.GinContextFromContext(ctx)
+	//if err == nil {
+	//	errors.New("Error in GinContext")
+	//}
+
 	user1 := new(model.User)
 	if err := u.DB.NewSelect().Model(user1).Where("phone = ?", input.Phone).Scan(ctx); err != nil {
 		fmt.Println(err)
 		panic(err)
 	}
-
 	viewer := model.Viewer{
 		user1,
 	}

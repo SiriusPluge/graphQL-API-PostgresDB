@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"golang.org/x/net/context"
 	"graphQL-API-PostgresDB/graph/model"
+	//"github.com/go-pg/pg/v10"
 )
 
 func (u *DB) GetProducts(ctx context.Context) ([]*model.Product, error) {
