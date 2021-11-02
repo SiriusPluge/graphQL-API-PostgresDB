@@ -1,7 +1,6 @@
 package postgres
 
 import (
-	"fmt"
 	"golang.org/x/net/context"
 	"graphQL-API-PostgresDB/graph/model"
 	"log"
@@ -9,22 +8,26 @@ import (
 
 func (u *DB) SignIn(ctx context.Context, input model.SignInByCodeInput) (model.SignInOrErrorPayload) {
 
-	//gc, err := scripts.GinContextFromContext(ctx)
-	//if err == nil {
-	//	errors.New("Error in GinContext")
-	//}
-
 	user1 := new(model.User)
 	if err := u.DB.NewSelect().Model(user1).Where("phone = ?", input.Phone).Scan(ctx); err != nil {
-		fmt.Println(err)
 		panic(err)
 	}
 	viewer := model.Viewer{
 		user1,
 	}
 
-	codeClient := "0000" // we receive the code from the client
-	codeVerify := "0000" // code issued by the service
+	//get the codeUser in DB
+	var codeUser model.CodeUsers
+	errGetCode := u.DB.NewSelect().
+		Model(&codeUser).
+		Where("users_id = ?", user1.ID).
+		Scan(ctx)
+	if errGetCode != nil {
+		panic(errGetCode)
+	}
+
+	codeClient := input.Code // we receive the code from the client
+	codeVerify := codeUser.AuthCode // code issued by the service
 
 	if codeClient == codeVerify && user1 != nil {
 
