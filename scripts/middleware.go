@@ -1,57 +1,43 @@
 package scripts
 
 import (
-	"fmt"
+	"errors"
 	"github.com/golang-jwt/jwt"
-	"github.com/pkg/errors"
 	"golang.org/x/net/context"
-	"strings"
-
-	//"strings"
 )
 
-var SigningKey string
-
-func ParseAuthHeader(ctx context.Context) (string, error) {
-
-
-
-	header := ("Authorization")
-	fmt.Println(header)
-	if header == "" {
-		return "", errors.New("empty auth header")
-	}
-
-	headerParts := strings.Split(header, " ")
-	if len(headerParts) != 2 || headerParts[0] != "Bearer" {
-		return "", errors.New("invalid auth header")
-	}
-
-	if len(headerParts[1]) == 0 {
-		return "", errors.New("token is empty")
-	}
-
-	headerToken := headerParts[1]
-
-	return headerToken, nil
+type MyCustomClaims struct {
+	Phone interface{}
+	jwt.MapClaims
 }
 
-func Parse(Token string) (string, error) {
-	token, err := jwt.Parse(Token, func(token *jwt.Token) (i interface{}, err error) {
-		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
-		}
+func GetTokenFromCTX(ctx context.Context) (string, error) {
+	errNoUserInContext := errors.New("no user in context")
 
-		return []byte(SigningKey), nil
+	if ctx.Value(AuthorizationTokenKey) == nil {
+		panic(errNoUserInContext)
+	}
+
+	token, ok := ctx.Value(AuthorizationTokenKey).(string)
+	if !ok || token == "" {
+		panic(errNoUserInContext)
+	}
+
+	return token, nil
+}
+
+func DecodeToken(getToken string) *MyCustomClaims {
+
+	// Parse the token
+	token, err := jwt.ParseWithClaims(getToken, &MyCustomClaims{}, func(token *jwt.Token) (interface{}, error) {
+		var verifyKey = []byte("secret")
+		return verifyKey, nil
 	})
 	if err != nil {
-		return "", err
+		panic(err)
 	}
 
-	claims, ok := token.Claims.(jwt.MapClaims)
-	if !ok {
-		return "", fmt.Errorf("error get user claims from token")
-	}
+	claims := token.Claims.(*MyCustomClaims)
 
-	return claims["phone"].(string), nil
+	return claims
 }

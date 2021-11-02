@@ -31,7 +31,7 @@ func (u *DB) SignIn(ctx context.Context, input model.SignInByCodeInput) (model.S
 
 	if codeClient == codeVerify && user1 != nil {
 
-		token, err := u.GenerateToken(input.Phone)
+		token, err := u.GenerateToken(user1.Phone)
 		if err != nil {
 			log.Fatalf("Error in take token: %v", err)
 		}

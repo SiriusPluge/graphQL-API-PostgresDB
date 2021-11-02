@@ -29,6 +29,7 @@ func main() {
 	Repo := postgres.DB{DB: DB}
 	d := domain.NewDomain(Repo)
 
+
 	srv := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: &graph.Resolver{Domain: d}}))
 
 	http.Handle("/", playground.Handler("GraphQL playground", "/query"))

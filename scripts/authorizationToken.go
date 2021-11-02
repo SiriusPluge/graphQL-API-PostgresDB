@@ -6,6 +6,7 @@ import (
 	"strings"
 )
 
+
 var AuthorizationTokenKey string
 
 func AuthorizationTokenContextMiddleware(next http.Handler) http.Handler {
@@ -19,9 +20,11 @@ func AuthorizationTokenContextMiddleware(next http.Handler) http.Handler {
 				AuthorizationTokenKey,
 				token,
 			)
+
 			next.ServeHTTP(w, r.WithContext(ctx))
 		} else {
 			next.ServeHTTP(w, r)
 		}
+
 	})
 }

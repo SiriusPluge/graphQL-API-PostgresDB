@@ -5,7 +5,6 @@ package graph
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"graphQL-API-PostgresDB/graph/generated"
 	"graphQL-API-PostgresDB/graph/model"
@@ -98,36 +97,20 @@ func (r *queryResolver) Products(ctx context.Context) ([]*model.Product, error) 
 
 func (r *queryResolver) Viewer(ctx context.Context) (*model.Viewer, error) {
 
-	fmt.Println(ctx)
-
-	gc, err := scripts.GinContextFromContext(ctx)
-	if err == nil {
-		errors.New("Error in GinContext")
+		//
+	getToken, errGetPhoneFromCTX := scripts.GetTokenFromCTX(ctx)
+	if errGetPhoneFromCTX != nil {
+		panic(errGetPhoneFromCTX)
 	}
 
-	fmt.Println(gc)
+	claims := scripts.DecodeToken(getToken)
 
-	headerToken, err := scripts.ParseAuthHeader(ctx)
-	if err != nil {
-		return nil, errors.New("missing jwt-token in headers request")
-	}
-
-	fmt.Println(headerToken)
-
-	phone, err := scripts.Parse(headerToken)
-	if err != nil {
-		return nil, errors.New("invalid token")
-	}
-
-	fmt.Println(phone)
-
-	user := new(model.User)
-	if err := r.Domain.DB.DB.NewSelect().Model(&user).Where("phone = ?", phone).Scan(ctx); err != nil {
+	var user model.User
+	if err := r.Domain.DB.DB.NewSelect().Model(&user).Where("phone = ?", claims.Phone).Scan(ctx); err != nil {
 		panic(err)
 	}
 
-	fmt.Println(user)
-	return &model.Viewer{User: user}, nil
+	return &model.Viewer{User: &user}, nil
 }
 
 // Mutation returns generated.MutationResolver implementation.
