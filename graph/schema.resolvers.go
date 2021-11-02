@@ -16,30 +16,27 @@ func (r *mutationResolver) RequestSignInCode(ctx context.Context, input model.Re
 	//getting the latest index
 	lastIndex, err := r.Domain.DB.LastIndexUsers(ctx)
 	if err != nil {
-		fmt.Println("Ошибка")
+		panic(err)
 	}
+
+	var u1 model.User
+	u1.Phone = input.Phone
+	u1.ID = lastIndex + 1
 
 	//checking availability in the database
 	check, User := r.Domain.DB.UserPresence(ctx, input.Phone)
 	if check == false {
 
-		var u1 model.User
-		u1.Phone = input.Phone
-		u1.ID = lastIndex + 1
-
 		//adding a user to the database
 		_, errInsert := r.Domain.DB.DB.NewInsert().Model(&u1).Exec(ctx)
 		if errInsert != nil {
-			errors.New("Error in errInsert")
+			panic(errInsert)
 		}
-		//fmt.Printf("Принт добавление юзера: %s \n", res)
-		//
-		//fmt.Println("вариант с вставкой user \n")
 
 		//sending the code to the user
-		code, err := r.Domain.DB.GetInCode(u1.Phone)
-		if err != nil {
-			fmt.Errorf("Error in RequestSignInCode: %s", err)
+		code, errCode := r.Domain.DB.GetInCode(u1.Phone)
+		if errCode != nil {
+			panic(errCode)
 		}
 
 		//adding code to the database
@@ -47,31 +44,28 @@ func (r *mutationResolver) RequestSignInCode(ctx context.Context, input model.Re
 		codeUsers.UsersId = u1.ID
 		codeUsers.AuthCode = code
 
-		fmt.Println(codeUsers)
-
 		_, errSaveCode := r.Domain.DB.DB.NewInsert().
 			Model(&codeUsers).
 			Exec(ctx)
 		if errSaveCode != nil {
-			fmt.Errorf("%v", errSaveCode)
+			panic(errSaveCode)
 		}
 
 		var msg *model.ErrorPayload
 		return msg, nil
+
 	} else {
-		//fmt.Println(User)
-		//
-		//fmt.Println("вараинт без вставки user")
+
+		//sending the code to the user
 		code, err := r.Domain.DB.GetInCode(input.Phone)
 		if err != nil {
 			fmt.Errorf("Error in RequestSignInCode: %s", err)
 		}
 
+		//adding code to the database
 		var codeUsers model.CodeUsers
 		codeUsers.UsersId = User.ID
 		codeUsers.AuthCode = code
-
-		fmt.Println(codeUsers)
 
 		_, errSaveCode := r.Domain.DB.DB.NewInsert().
 			Model(&codeUsers).

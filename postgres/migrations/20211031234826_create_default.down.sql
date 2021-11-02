@@ -1,5 +1,5 @@
 DROP TABLE users;
 
-DROP TABLE codeUsers;
+DROP TABLE codeusers;
 
 DROP TABLE products;

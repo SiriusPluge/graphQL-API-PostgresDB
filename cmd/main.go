@@ -26,13 +26,13 @@ func main() {
 
 	ctx := context.Background()
 
-	var codeUser model.CodeUsers
-	codeUser.ID = 3
-	codeUser.UsersId = 2
-	codeUser.AuthCode = "1234"
+	var codeUsers model.CodeUsers
+	codeUsers.ID = 3
+	codeUsers.UsersId = 2
+	codeUsers.AuthCode = "1234"
 
 	_, errSaveCode := DB.NewInsert().
-		Model(&codeUser).
+		Model(&codeUsers).
 		Exec(ctx)
 	if errSaveCode != nil {
 		fmt.Errorf("%v", errSaveCode)

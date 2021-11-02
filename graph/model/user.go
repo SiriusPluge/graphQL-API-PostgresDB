@@ -6,7 +6,6 @@ type User struct {
 }
 
 type CodeUsers struct {
-	ID    int    `json:"id"`
 	UsersId int `json:"users_id"`
 	AuthCode string `json:"code"`
 }

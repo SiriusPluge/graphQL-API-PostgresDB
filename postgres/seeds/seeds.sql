@@ -6,5 +6,5 @@ INSERT INTO products (name) VALUES ('Апельсин');
 INSERT INTO products (name) VALUES ('Яблоко');
 INSERT INTO products (name) VALUES ('Виноград');
 
-INSERT INTO codeusers (usersid, authcode) VALUES ('1', '3245');
-INSERT INTO codeusers (usersid, authcode) VALUES ('2', '5467');
+INSERT INTO code_users (users_id, auth_code) VALUES ('1', '3245');
+INSERT INTO code_users (users_id, auth_code) VALUES ('2', '5467');
