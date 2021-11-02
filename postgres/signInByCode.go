@@ -16,6 +16,6 @@ func (u *DB) GetInCode(phone string) (string, error) {
 	rand.Seed(time.Now().UnixNano())
 	c := randomInt(1000, 9999)
 	sms := strconv.Itoa(c)
-	fmt.Printf("На Ваш номер телефона: %s отправлен код для входа: %s", phone, sms)
+	fmt.Printf("На Ваш номер телефона: %s отправлен код для входа: %s \n", phone, sms)
 	return sms, nil
 }

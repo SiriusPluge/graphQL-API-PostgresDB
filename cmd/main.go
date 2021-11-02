@@ -26,7 +26,7 @@ func main() {
 
 	ctx := context.Background()
 
-	var codeUser *model.CodeUsers
+	var codeUser model.CodeUsers
 	codeUser.ID = 3
 	codeUser.UsersId = 2
 	codeUser.AuthCode = "1234"

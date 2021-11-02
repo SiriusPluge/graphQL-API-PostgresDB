@@ -13,64 +13,72 @@ import (
 )
 
 func (r *mutationResolver) RequestSignInCode(ctx context.Context, input model.RequestSignInCodeInput) (*model.ErrorPayload, error) {
-
+	//getting the latest index
 	lastIndex, err := r.Domain.DB.LastIndexUsers(ctx)
 	if err != nil {
 		fmt.Println("Ошибка")
 	}
 
+	//checking availability in the database
 	check, User := r.Domain.DB.UserPresence(ctx, input.Phone)
 	if check == false {
-		errors.New("a user with such a phone was not found")
-		//if errGetUser := r.Domain.DB.DB.NewSelect().Model(user1).Where("phone = ?", input.Phone).Scan(ctx); err != nil {
 
 		var u1 model.User
 		u1.Phone = input.Phone
 		u1.ID = lastIndex + 1
 
-		res, errInsert := r.Domain.DB.DB.NewInsert().Model(&u1).Exec(ctx)
+		//adding a user to the database
+		_, errInsert := r.Domain.DB.DB.NewInsert().Model(&u1).Exec(ctx)
 		if errInsert != nil {
 			errors.New("Error in errInsert")
 		}
-		fmt.Printf("Принт добавление юзера: %s \n", res)
+		//fmt.Printf("Принт добавление юзера: %s \n", res)
+		//
+		//fmt.Println("вариант с вставкой user \n")
 
-		fmt.Println("вариант с вставкой user \n")
+		//sending the code to the user
 		code, err := r.Domain.DB.GetInCode(u1.Phone)
 		if err != nil {
 			fmt.Errorf("Error in RequestSignInCode: %s", err)
 		}
-		var codeUser model.CodeUsers
-		codeUser.UsersId = u1.ID
-		codeUser.AuthCode = code
-		res2, errSaveCode := r.Domain.DB.InsertCodeID(ctx, &codeUser)
+
+		//adding code to the database
+		var codeUsers model.CodeUsers
+		codeUsers.UsersId = u1.ID
+		codeUsers.AuthCode = code
+
+		fmt.Println(codeUsers)
+
+		_, errSaveCode := r.Domain.DB.DB.NewInsert().
+			Model(&codeUsers).
+			Exec(ctx)
 		if errSaveCode != nil {
 			fmt.Errorf("%v", errSaveCode)
 		}
-		fmt.Println(res2)
 
 		var msg *model.ErrorPayload
 		return msg, nil
 	} else {
-		fmt.Println(User)
-
-		fmt.Println("вараинт без вставки user")
+		//fmt.Println(User)
+		//
+		//fmt.Println("вараинт без вставки user")
 		code, err := r.Domain.DB.GetInCode(input.Phone)
 		if err != nil {
 			fmt.Errorf("Error in RequestSignInCode: %s", err)
 		}
 
-		var codeUser model.CodeUsers
-		codeUser.UsersId = User.ID
-		codeUser.AuthCode = code
+		var codeUsers model.CodeUsers
+		codeUsers.UsersId = User.ID
+		codeUsers.AuthCode = code
 
-		fmt.Println(codeUser)
+		fmt.Println(codeUsers)
 
-		res, errSaveCode := r.Domain.DB.InsertCodeID(ctx, &codeUser)
+		_, errSaveCode := r.Domain.DB.DB.NewInsert().
+			Model(&codeUsers).
+			Exec(ctx)
 		if errSaveCode != nil {
 			fmt.Errorf("%v", errSaveCode)
 		}
-
-		fmt.Println(res)
 
 		var msg *model.ErrorPayload
 		return msg, nil

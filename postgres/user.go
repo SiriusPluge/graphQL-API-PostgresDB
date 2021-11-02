@@ -41,9 +41,9 @@ func (u *DB) UserPresence(ctx context.Context, phone string) (bool, *model.User)
 	}
 }
 
-func (u *DB) InsertCodeID(ctx context.Context, codeUser *model.CodeUsers) (*sql.Result, error) {
+func (u *DB) InsertCodeID(ctx context.Context, codeUser model.CodeUsers) (*sql.Result, error) {
 	res, err := u.DB.NewInsert().
-		Model(&codeUser).
+		Model(codeUser).
 		Exec(ctx)
 
 	if err != nil {
