@@ -28,24 +28,25 @@ func (r *mutationResolver) RequestSignInCode(ctx context.Context, input model.Re
 		u1.Phone = input.Phone
 		u1.ID = lastIndex + 1
 
-		_, errInsert := r.Domain.DB.DB.NewInsert().Model(&u1).Exec(ctx)
+		res, errInsert := r.Domain.DB.DB.NewInsert().Model(&u1).Exec(ctx)
 		if errInsert != nil {
 			errors.New("Error in errInsert")
 		}
+		fmt.Printf("Принт добавление юзера: %s \n", res)
 
-		fmt.Println("вариант с вставкой user")
+		fmt.Println("вариант с вставкой user \n")
 		code, err := r.Domain.DB.GetInCode(u1.Phone)
 		if err != nil {
 			fmt.Errorf("Error in RequestSignInCode: %s", err)
 		}
 		var codeUser model.CodeUsers
-		codeUser.UsersId = User.ID
+		codeUser.UsersId = u1.ID
 		codeUser.AuthCode = code
-		res, errSaveCode := r.Domain.DB.InsertCodeID(ctx, &codeUser)
+		res2, errSaveCode := r.Domain.DB.InsertCodeID(ctx, &codeUser)
 		if errSaveCode != nil {
 			fmt.Errorf("%v", errSaveCode)
 		}
-		fmt.Println(res)
+		fmt.Println(res2)
 
 		var msg *model.ErrorPayload
 		return msg, nil
