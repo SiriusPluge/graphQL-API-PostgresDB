@@ -1,10 +1,10 @@
-package cmd
+package main
 
 import (
 	"fmt"
+	"golang.org/x/net/context"
 	"graphQL-API-PostgresDB/graph/model"
 	"graphQL-API-PostgresDB/postgres"
-	"os"
 )
 
 const defaultPort = "8080"
@@ -24,19 +24,17 @@ func main() {
 	DB := postgres.ConnectDB()
 	defer DB.Close()
 
-	port := os.Getenv("PORT")
-	if port == "" {
-		port = defaultPort
-	}
+	ctx := context.Background()
 
-	var codeUser model.CodeUsers
+	var codeUser *model.CodeUsers
+	codeUser.ID = 3
 	codeUser.UsersId = 2
 	codeUser.AuthCode = "1234"
-	res2, errSaveCode := DB.NewInsert().
+
+	_, errSaveCode := DB.NewInsert().
 		Model(&codeUser).
-		Exec()
+		Exec(ctx)
 	if errSaveCode != nil {
 		fmt.Errorf("%v", errSaveCode)
 	}
-	fmt.Println(res2)
 }
