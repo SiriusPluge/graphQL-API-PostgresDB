@@ -19,32 +19,58 @@ func (r *mutationResolver) RequestSignInCode(ctx context.Context, input model.Re
 		fmt.Println("Ошибка")
 	}
 
-	check := r.Domain.DB.UserPresence(ctx, input.Phone)
+	check, User := r.Domain.DB.UserPresence(ctx, input.Phone)
 	if check == false {
 		errors.New("a user with such a phone was not found")
 		//if errGetUser := r.Domain.DB.DB.NewSelect().Model(user1).Where("phone = ?", input.Phone).Scan(ctx); err != nil {
+
 		var u1 model.User
 		u1.Phone = input.Phone
 		u1.ID = lastIndex + 1
+
 		_, errInsert := r.Domain.DB.DB.NewInsert().Model(&u1).Exec(ctx)
 		if errInsert != nil {
 			errors.New("Error in errInsert")
 		}
 
-		fmt.Println("вариант с вставкой")
-		_, err := r.Domain.DB.GetInCode(u1.Phone)
+		fmt.Println("вариант с вставкой user")
+		code, err := r.Domain.DB.GetInCode(u1.Phone)
 		if err != nil {
 			fmt.Errorf("Error in RequestSignInCode: %s", err)
 		}
+		var codeUser model.CodeUsers
+		codeUser.UsersId = User.ID
+		codeUser.AuthCode = code
+		res, errSaveCode := r.Domain.DB.InsertCodeID(ctx, &codeUser)
+		if errSaveCode != nil {
+			fmt.Errorf("%v", errSaveCode)
+		}
+		fmt.Println(res)
 
 		var msg *model.ErrorPayload
 		return msg, nil
 	} else {
-		fmt.Println("вараинт без вставки")
-		_, err := r.Domain.DB.GetInCode(input.Phone)
+		fmt.Println(User)
+
+		fmt.Println("вараинт без вставки user")
+		code, err := r.Domain.DB.GetInCode(input.Phone)
 		if err != nil {
 			fmt.Errorf("Error in RequestSignInCode: %s", err)
 		}
+
+		var codeUser model.CodeUsers
+		codeUser.UsersId = User.ID
+		codeUser.AuthCode = code
+
+		fmt.Println(codeUser)
+
+		res, errSaveCode := r.Domain.DB.InsertCodeID(ctx, &codeUser)
+		if errSaveCode != nil {
+			fmt.Errorf("%v", errSaveCode)
+		}
+
+		fmt.Println(res)
+
 		var msg *model.ErrorPayload
 		return msg, nil
 	}
@@ -70,6 +96,13 @@ func (r *queryResolver) Products(ctx context.Context) ([]*model.Product, error) 
 func (r *queryResolver) Viewer(ctx context.Context) (*model.Viewer, error) {
 
 	fmt.Println(ctx)
+
+	gc, err := scripts.GinContextFromContext(ctx)
+	if err == nil {
+		errors.New("Error in GinContext")
+	}
+
+	fmt.Println(gc)
 
 	headerToken, err := scripts.ParseAuthHeader(ctx)
 	if err != nil {
