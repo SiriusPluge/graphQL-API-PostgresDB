@@ -57,9 +57,9 @@ func (r *mutationResolver) RequestSignInCode(ctx context.Context, input model.Re
 	} else {
 
 		//sending the code to the user
-		code, err := r.Domain.DB.GetInCode(input.Phone)
+		code, errGet := r.Domain.DB.GetInCode(input.Phone)
 		if err != nil {
-			fmt.Errorf("Error in RequestSignInCode: %s", err)
+			panic(errGet)
 		}
 
 		//adding code to the database
@@ -71,7 +71,7 @@ func (r *mutationResolver) RequestSignInCode(ctx context.Context, input model.Re
 			Model(&codeUsers).
 			Exec(ctx)
 		if errSaveCode != nil {
-			fmt.Errorf("%v", errSaveCode)
+			panic(errSaveCode)
 		}
 
 		var msg *model.ErrorPayload
