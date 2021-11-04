@@ -7,8 +7,7 @@
 
 1) sudo docker run --name=postgres -e POSTGRES_PASSWORD='postgres' -p 7323:5432 -d postgres
 2) migrate -path "postgres/db/migrations" -database "postgres://postgres:postgres@localhost:7323/postgres?sslmode=disable" up
-- migrate install: go get -u github.com/golang-migrate/migrate
-3) go run postgres/db/seeds/seeds.sql (initialization testBD)
+- migrate install: `go get -u github.com/golang-migrate/migrate`
 
 #API
 ## Взаимодествие с API:
