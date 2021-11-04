@@ -1,10 +1,38 @@
-version: '2.4'
-
+version: '3'
 services:
-  postgres:
-    image: postgres:10.7
+  db:
+    container_name: postgresdb
+    restart: always
+    image: postgres
+    volumes:
+      - ./db/data/:/var/lib/postgresql/data
     environment:
-      - POSTGRES_USER=staging
-      - POSTGRES_PASSWORD=staging
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres  # To be moved to environment file
+      POSTGRES_DATABASE: postgres
+    expose:
+      - 7323
     ports:
-      - 7232:5432
+      - 7323:5432
+    networks:
+      - psql-pgql
+  graphql:
+    container_name: pgql
+    restart: always
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      - db
+    environment:
+      DATABASE_URL: postgres://postgres:postgres@localhost:7323/postgres?sslmode=disable # To be moved to environment file
+    expose:
+      - 8080
+    ports:
+      - 8080:8080
+    links:
+      - db
+    networks:
+      - psql-pgql
+networks:
+  psql-pgql:

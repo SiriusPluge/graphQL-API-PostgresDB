@@ -8,6 +8,11 @@ type User {
     phone: String!
 }
 
+type CodeUsers {
+    usersId: Int!
+    authCode: String!
+}
+
 type Viewer {
     user: User
 }
