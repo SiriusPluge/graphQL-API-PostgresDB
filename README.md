@@ -1,4 +1,5 @@
 # graphQL-API-PostgresDB сервис
+Описание тестового задание можно посмотреть в файле "README-2.md"
 
 # Для запуска сервера
 - go run server/server.go
