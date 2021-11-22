@@ -6,7 +6,7 @@ type User struct {
 }
 
 type CodeUsers struct {
-	UsersId int `json:"users_id"`
+	Phone    string    `json:"phone"`
 	AuthCode string `json:"code"`
 }
 
@@ -18,5 +18,5 @@ type CodeUsers struct {
 //}
 
 type LoginInput struct {
-	Phone     string
+	Phone string
 }

@@ -5,42 +5,26 @@ package graph
 
 import (
 	"context"
-	"fmt"
 	"graphQL-API-PostgresDB/graph/generated"
 	"graphQL-API-PostgresDB/graph/model"
 	"graphQL-API-PostgresDB/scripts"
 )
 
 func (r *mutationResolver) RequestSignInCode(ctx context.Context, input model.RequestSignInCodeInput) (*model.ErrorPayload, error) {
-	//getting the latest index
-	lastIndex, err := r.Domain.DB.LastIndexUsers(ctx)
-	if err != nil {
-		panic(err)
-	}
-
-	var u1 model.User
-	u1.Phone = input.Phone
-	u1.ID = lastIndex + 1
 
 	//checking availability in the database
-	check, User := r.Domain.DB.UserPresence(ctx, input.Phone)
+	check := r.Domain.DB.UserPresencePhone(ctx, input.Phone)
 	if check == false {
 
-		//adding a user to the database
-		_, errInsert := r.Domain.DB.DB.NewInsert().Model(&u1).Exec(ctx)
-		if errInsert != nil {
-			panic(errInsert)
-		}
-
 		//sending the code to the user
-		code, errCode := r.Domain.DB.GetInCode(u1.Phone)
+		code, errCode := r.Domain.DB.GetInCode(input.Phone)
 		if errCode != nil {
 			panic(errCode)
 		}
 
 		//adding code to the database
 		var codeUsers model.CodeUsers
-		codeUsers.UsersId = u1.ID
+		codeUsers.Phone = input.Phone
 		codeUsers.AuthCode = code
 
 		_, errSaveCode := r.Domain.DB.DB.NewInsert().
@@ -57,17 +41,19 @@ func (r *mutationResolver) RequestSignInCode(ctx context.Context, input model.Re
 
 		//sending the code to the user
 		code, errGet := r.Domain.DB.GetInCode(input.Phone)
-		if err != nil {
+		if errGet != nil {
 			panic(errGet)
 		}
 
 		//adding code to the database
 		var codeUsers model.CodeUsers
-		codeUsers.UsersId = User.ID
+		codeUsers.Phone = input.Phone
 		codeUsers.AuthCode = code
 
-		_, errSaveCode := r.Domain.DB.DB.NewInsert().
+		_, errSaveCode := r.Domain.DB.DB.NewUpdate().
 			Model(&codeUsers).
+			Column("auth_code").
+			Where("phone = ?", &codeUsers.Phone).
 			Exec(ctx)
 		if errSaveCode != nil {
 			panic(errSaveCode)
@@ -88,16 +74,12 @@ func (r *mutationResolver) SignInByCode(ctx context.Context, input model.SignInB
 }
 
 func (r *queryResolver) Products(ctx context.Context) ([]*model.Product, error) {
-	result, err := r.Domain.DB.GetProducts(ctx)
-	if err != nil {
-		panic(fmt.Errorf("Error in resolvers Products"))
-	}
-	return result, nil
+	return r.Domain.DB.GetProducts(ctx)
 }
 
 func (r *queryResolver) Viewer(ctx context.Context) (*model.Viewer, error) {
 
-		//
+	//
 	getToken, errGetPhoneFromCTX := scripts.GetTokenFromCTX(ctx)
 	if errGetPhoneFromCTX != nil {
 		panic(errGetPhoneFromCTX)

@@ -20,22 +20,22 @@ func (u *DB) GetUserByPhone(phone string) *model.User {
 	return u.GetUserByField("phone", phone)
 }
 
-func (u *DB) LastIndexUsers(ctx context.Context) (int, error) {
-	var user []model.User
-	err := u.DB.NewSelect().Model(&user).Scan(ctx)
+func (u *DB) UserPresencePhone(ctx context.Context, phone string) bool {
+	var codeUsers model.CodeUsers
+	err := u.DB.NewSelect().Model(&codeUsers).Where("phone = ?", phone).Scan(ctx)
 	if err != nil {
-		errors.New("error in getting user from DB")
+		return false
+	} else {
+		return true
 	}
-	index := len(user)
-	return index, nil
 }
 
 func (u *DB) UserPresence(ctx context.Context, phone string) (bool, model.User) {
-	var user model.User
-	err := u.DB.NewSelect().Model(&user).Where("phone = ?", phone).Scan(ctx)
+	var User model.User
+	err := u.DB.NewSelect().Model(&User).Where("phone = ?", phone).Scan(ctx)
 	if err != nil {
-		return false, user
+		return false, User
 	} else {
-		return true, user
+		return true, User
 	}
 }
