@@ -1,9 +1,7 @@
 package postgres
 
 import (
-	"fmt"
 	"github.com/golang-jwt/jwt"
-	"github.com/uptrace/bun"
 	"time"
 )
 
@@ -16,7 +14,7 @@ type MyCustomClaims struct {
 var PublicKey = []byte("secret")
 
 // GenerateToken generates JWT token en returns it
-func (u *DB) GenerateToken(phone string) (string, *bun.SelectQuery) {
+func (u *DB) GenerateToken(phone string) (string, error) {
 
 	// Create the Claims
 	claims := MyCustomClaims{
@@ -29,30 +27,7 @@ func (u *DB) GenerateToken(phone string) (string, *bun.SelectQuery) {
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
-	tokenString, _ := token.SignedString(PublicKey)
+	tokenString, errGetToken := token.SignedString(PublicKey)
 
-	return tokenString, nil
-}
-
-// CheckToken checks if token is valid else returns error
-func CheckToken(jwtToken string) (*jwt.Token, error) {
-
-	token, err := jwt.ParseWithClaims(jwtToken, &MyCustomClaims{}, func(token *jwt.Token) (interface{}, error) {
-
-		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
-		}
-
-		return PublicKey, nil
-	})
-
-	if err != nil {
-		return nil, err
-	}
-
-	if token.Valid {
-		return token, nil
-	}
-
-	return token, nil
+	return tokenString, errGetToken
 }

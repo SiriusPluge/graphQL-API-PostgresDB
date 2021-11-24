@@ -1,8 +1,8 @@
 package scripts
 
 import (
-	"errors"
 	"github.com/golang-jwt/jwt"
+	"github.com/pkg/errors"
 	"golang.org/x/net/context"
 )
 
@@ -11,7 +11,7 @@ type MyCustomClaims struct {
 	jwt.MapClaims
 }
 
-func GetTokenFromCTX(ctx context.Context) (string, error) {
+func GetTokenFromCTX(ctx context.Context) string {
 	errNoUserInContext := errors.New("no user in context")
 
 	if ctx.Value(AuthorizationTokenKey) == nil {
@@ -20,10 +20,10 @@ func GetTokenFromCTX(ctx context.Context) (string, error) {
 
 	token, ok := ctx.Value(AuthorizationTokenKey).(string)
 	if !ok || token == "" {
-		panic(errNoUserInContext)
+		errors.Wrapf(errNoUserInContext, "error when receiving the token")
 	}
 
-	return token, nil
+	return token
 }
 
 func DecodeToken(getToken string) *MyCustomClaims {
@@ -34,7 +34,7 @@ func DecodeToken(getToken string) *MyCustomClaims {
 		return verifyKey, nil
 	})
 	if err != nil {
-		panic(err)
+		errors.Wrap(err, "token decoding error")
 	}
 
 	claims := token.Claims.(*MyCustomClaims)

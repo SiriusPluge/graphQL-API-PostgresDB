@@ -11,57 +11,7 @@ import (
 )
 
 func (r *mutationResolver) RequestSignInCode(ctx context.Context, input model.RequestSignInCodeInput) (*model.ErrorPayload, error) {
-
-	//checking availability in the database
-	check := r.Domain.DB.UserPresencePhone(ctx, input.Phone)
-	if check == false {
-
-		//sending the code to the user
-		code, errCode := r.Domain.DB.GetInCode(input.Phone)
-		if errCode != nil {
-			panic(errCode)
-		}
-
-		//adding code to the database
-		var codeUsers model.CodeUsers
-		codeUsers.Phone = input.Phone
-		codeUsers.AuthCode = code
-
-		_, errSaveCode := r.Domain.DB.DB.NewInsert().
-			Model(&codeUsers).
-			Exec(ctx)
-		if errSaveCode != nil {
-			panic(errSaveCode)
-		}
-
-		var msg *model.ErrorPayload
-		return msg, nil
-
-	} else {
-
-		//sending the code to the user
-		code, errGet := r.Domain.DB.GetInCode(input.Phone)
-		if errGet != nil {
-			panic(errGet)
-		}
-
-		//adding code to the database
-		var codeUsers model.CodeUsers
-		codeUsers.Phone = input.Phone
-		codeUsers.AuthCode = code
-
-		_, errSaveCode := r.Domain.DB.DB.NewUpdate().
-			Model(&codeUsers).
-			Column("auth_code").
-			Where("phone = ?", &codeUsers.Phone).
-			Exec(ctx)
-		if errSaveCode != nil {
-			panic(errSaveCode)
-		}
-
-		var msg *model.ErrorPayload
-		return msg, nil
-	}
+	return r.Domain.DB.ReqSignInCode(ctx, input)
 }
 
 func (r *mutationResolver) SignInByCode(ctx context.Context, input model.SignInByCodeInput) (model.SignInOrErrorPayload, error) {
@@ -80,10 +30,7 @@ func (r *queryResolver) Products(ctx context.Context) ([]*model.Product, error) 
 func (r *queryResolver) Viewer(ctx context.Context) (*model.Viewer, error) {
 
 	//
-	getToken, errGetPhoneFromCTX := scripts.GetTokenFromCTX(ctx)
-	if errGetPhoneFromCTX != nil {
-		panic(errGetPhoneFromCTX)
-	}
+	getToken := scripts.GetTokenFromCTX(ctx)
 
 	claims := scripts.DecodeToken(getToken)
 
